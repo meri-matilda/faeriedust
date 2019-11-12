@@ -1,0 +1,98 @@
+
+```{r kcdata, echo=TRUE}
+
+Kcdata <-read.csv("/Users/merimatildalaitinen-carnevale/desktop/Card&Krueger(1994)dataset.csv")
+attach(Kcdata)
+```
+
+```{r factor.state, echo=TRUE}
+
+STATE.f <- factor(STATE)
+STATE.f
+is.factor(STATE.f)
+
+nj <- STATE.f == 1
+pa <- STATE.f == 0
+
+levels(STATE.f)
+```
+
+
+```{r newdata, echo=TRUE}
+
+Kdata.2 <- data.frame(STATE.f, WAGE_ST, WAGE_ST2, EMPFT, EMPFT2)
+Kdata.2
+```
+
+Y=B0 + B1Treatment + B2After + B3After*Treatment
+
+```{r nj.emp, echo=TRUE}
+
+njdata1 <- data.frame(STATE.f == 1, EMPFT, WAGE_ST)
+njemp.reg1 <- lm(EMPFT ~ WAGE_ST, data=njdata1)
+summary(njemp.reg1)
+```
+
+```{r nj.emp2, echo=TRUE}
+njdata2 <- data.frame(STATE.f == 1, EMPFT2, WAGE_ST2)
+njemp.reg2 <- lm(EMPFT2 ~ WAGE_ST2, data=njdata2)
+summary(njemp.reg2)
+```
+
+```{r pa.emp, echo=TRUE}
+padata1 <- data.frame(STATE.f == 0, EMPFT, WAGE_ST)
+paemp.reg1 <- lm(EMPFT ~ WAGE_ST, data=padata1)
+summary(paemp.reg1)
+```
+
+```{r paemp2, echo=TRUE}
+padata2 <- data.frame(STATE.f == 0, EMPFT2, WAGE_ST2)
+paemp.reg2 <- lm(EMPFT2 ~ WAGE_ST2, data=padata2)
+summary(paemp.reg2)
+```
+
+
+```{r dumtreatvar, echo=TRUE}
+
+after <- lm(EMPFT2 ~ WAGE_ST2, data=Kdata.2) 
+treatment <-lm(EMPFT2 ~ WAGE_ST2, data=njdata2)
+
+after.treatment <- after*treatment
+```
+##data and code taken from FP2
+```{r before.data, echo=TRUE}
+
+ck.before <- data.frame(before, nj, pa, wage_st, emp) ##smaller dataset, not needed although nicer to conceptualize.
+ck.before
+```
+
+```{r dummy.vars, echo=TRUE}
+
+nj.dummy <- as.numeric(nj) ##do I need this? 
+```
+
+ 
+ ```{r before.regression, echo=TRUE}
+
+before.reg <- lm(emptot ~ wage_st + period.f + nj, data=ck.before)
+summary(before.reg)
+```
+
+```{r after.data, echo=TRUE}
+
+ck.after <- data.frame(after, nj, pa, wage_st2, emp)
+ck.after
+```
+
+```{r after.regression, echo=TRUE}
+
+after.reg <- lm(emp ~ wage_st2 + nj, data=ck.after)
+summary(after.reg)
+```
+
+```{r pa.after, echo=TRUE}
+
+after.reg2 <-lm(emp ~ wage_st2 + nj, data=ck.after)
+summary(after.reg2)
+```
+
